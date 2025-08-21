@@ -1,117 +1,23 @@
-import React, { useEffect, useState } from "react";
-import {
-  Grid,
-  Card,
-  Typography,
-  Button,
-  Select,
-  MenuItem,
-  Box,
-  Chip,
-} from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router";
+import { Toaster } from "sonner";
 
-function Products() {
-  const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState("All"); // Just for UI, no filtering
+import Products from "./pages/Products";
+import ProductAdd from "./pages/ProductAdd";
+import ProductEdit from "./pages/ProductEdit";
+import CartPage from "./pages/CartPage";
 
-  useEffect(() => {
-    fetch("http://localhost:5123/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Error fetching products:", err));
-  }, []);
-
-  const categories = ["All", "Consoles", "Games", "Accessories", "Subscriptions"];
-
+function App() {
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header with Dropdown + Add Button */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 4,
-        }}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          Products
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)} // keeps UI controlled
-            sx={{ minWidth: 180 }}
-          >
-            {categories.map((cat) => (
-              <MenuItem key={cat} value={cat}>
-                {cat}
-              </MenuItem>
-            ))}
-          </Select>
-          <Button variant="contained" color="success">
-            Add New
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Product Grid (No filtering applied) */}
-      <Grid container spacing={10}>
-        {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-            <Card
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                p: 2,
-              }}
-            >
-              <Typography variant="h6" fontWeight="bold">
-                {product.name}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                {product.description}
-              </Typography>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mt: 2,
-                }}
-              >
-                <Chip label={`$${product.price}`} color="success" />
-                <Chip label={product.category} color="warning" />
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mt: 3,
-                }}
-              >
-                <Button variant="contained" color="primary">
-                  Add To Cart
-                </Button>
-                <Box>
-                  <Button size="small" variant="outlined" sx={{ mr: 1 }}>
-                    Edit
-                  </Button>
-                  <Button size="small" variant="outlined" color="error">
-                    Delete
-                  </Button>
-                </Box>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Products />} />
+        <Route path="/products/new" element={<ProductAdd />} />
+        <Route path="/products/:id/edit" element={<ProductEdit />} />
+        <Route path="/products/cart" element={<CartPage />} />
+      </Routes>
+      <Toaster />
+    </BrowserRouter>
   );
 }
 
-export default Products;
+export default App;
