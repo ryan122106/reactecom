@@ -138,12 +138,12 @@ const Products = () => {
                     color="primary"
                     fullWidth
                     onClick={() => {
-                      addToCart(product); // save product to localStorage
-                      toast.success("Product Added To Cart"); // show success message
+                      addToCart(product);
+                      toast.success("Product Added To Cart");
                     }}
                   >
                     Add To Cart
-                  </Button>
+                  </Button>               
                   <Box
                     sx={{
                       display: "flex",
