@@ -16,7 +16,7 @@ import Chip from "@mui/material/Chip";
 import { useState, useEffect } from "react";
 import { getProducts, deleteProduct } from "../utils/api_products";
 import Swal from "sweetalert2";
-import { toast } from "sonner";
+import { toast } from "sonner";6
 import { addToCart } from "../utils/cart";
 
 const Products = () => {
