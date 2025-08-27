@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getCart, deleteItemFromCart, updateCart } from "../utils/cart";
 import {
+  Box,
   Button,
   Typography,
   Table,
@@ -10,6 +11,7 @@ import {
   TableRow,
 } from "@mui/material";
 import Header from "../components/Header";
+import { Link } from "react-router";
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
@@ -38,18 +40,17 @@ const CartPage = () => {
   };
 
   const getTotal = () => {
-  let total = 0;
-  for (const item of cart) {
-    total += item.price * (item.quantity || 1);
-  }
-  return total;
-};
+    let total = 0;
+    for (const item of cart) {
+      total += item.price * (item.quantity || 1);
+    }
+    return total;
+  };
 
   return (
     <>
       <Header title="Cart" />
       <div style={{ padding: "20px" }}>
-
         {cart.length === 0 ? (
           <Typography>No products Add Yet!</Typography>
         ) : (
@@ -78,13 +79,17 @@ const CartPage = () => {
                         onClick={() => handleQuantity(item._id, 1)}
                       ></Button>
                     </TableCell>
-                    <TableCell>${item.price * (item.quantity || 1)}</TableCell>
+                    <TableCell>
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </TableCell>
                     <TableCell>
                       <Button
                         color="error"
                         variant="contained"
                         onClick={() => handleDelete(item._id)}
-                      >Delete</Button>
+                      >
+                        Remove{" "}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -92,14 +97,25 @@ const CartPage = () => {
             </Table>
 
             <Typography
-            sx={{ml:130}}
+              sx={{ ml: 130 }}
               variant="h6"
               style={{ marginTop: "20px" }}
             >
-                ${getTotal().toFixed(2)}
+              ${getTotal().toFixed(2)}
             </Typography>
           </>
         )}
+        <Box sx={{ pt: 3, display: "flex", justifyContent: "flex-end"}}>
+          <Button
+            variant="contained"
+            color="info"
+            component={Link}
+            to="/checkout"
+            disabled={cart.length === 0 ? true : false}
+          >
+            Checkout
+          </Button>
+        </Box>
       </div>
     </>
   );

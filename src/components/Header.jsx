@@ -22,11 +22,14 @@ const Header = ({ title }) => {
         {title}
       </Typography>
       <Box sx={{ mt: 3 }}>
-        <Button component={Link} to={"/"} variant="contained" sx={{ mr: 4 }}>
+        <Button component={Link} to={"/"} variant={title === "Welcome to My Store" ? "contained" : "outlined"} sx={{ mr: 4 }}>
           Home
         </Button>
-        <Button component={Link} to={"/products/cart"} variant="contained">
+        <Button component={Link} to={"/products/cart"} variant={title === "Cart" ? "contained" : "outlined"} sx={{ mr: 4 }}>
           Cart
+        </Button>
+        <Button component={Link} to={"/orders"} variant={title === "My Orders" ? "contained" : "outlined"}>
+          My Orders
         </Button>
       </Box>
     </Box>

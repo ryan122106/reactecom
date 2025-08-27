@@ -139,7 +139,7 @@ const Products = () => {
                     fullWidth
                     onClick={() => {
                       addToCart(product);
-                      toast.success("Product Added To Cart");
+                      toast.success(`${product.name} added to cart`);
                     }}
                   >
                     Add To Cart
