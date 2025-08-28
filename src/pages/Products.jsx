@@ -19,16 +19,16 @@ import { getProducts, deleteProduct } from "../utils/api_products";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { addToCart } from "../utils/cart";
-import { API_URL } from "../utils/constants";
 import { getCategories } from "../utils/api_categories";
+import { API_URL } from "../utils/constants";
 
 const Products = () => {
   // to store the data from /products
   const [products, setProducts] = useState([]);
   // to track which page the user is in
   const [page, setPage] = useState(1);
-  const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("all");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     getProducts(category, page).then((data) => {
@@ -37,9 +37,7 @@ const Products = () => {
   }, [category, page]);
 
   useEffect(() => {
-    getCategories().then((data) => {
-      setCategories(data); // load categories from MongoDB
-    });
+    getCategories().then((data) => setCategories(data));
   }, []);
 
   const handleProductDelete = async (id) => {
@@ -72,7 +70,7 @@ const Products = () => {
 
   return (
     <>
-      <Header title="Welcome to My Store" />
+      <Header current="home" />
       <Container>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
           <Typography
@@ -108,16 +106,16 @@ const Products = () => {
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={category}
+              label="Genre"
               onChange={(event) => {
                 setCategory(event.target.value);
+                // reset the page back to 1
                 setPage(1);
               }}
             >
               <MenuItem value="all">All</MenuItem>
-              {categories.map((c) => (
-                <MenuItem key={c._id} value={c.label}>
-                  {c.label}
-                </MenuItem>
+              {categories.map((cat) => (
+                <MenuItem value={cat._id}>{cat.label}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -148,7 +146,10 @@ const Products = () => {
                     }}
                   >
                     <Chip label={"$" + product.price} color="success" />
-                    <Chip label={product.category} color="primary" />
+                    <Chip
+                      label={product.category ? product.category.label : ""}
+                      color="primary"
+                    />
                   </Box>
                 </CardContent>
                 <CardActions sx={{ display: "block", px: 3, pb: 3 }}>
