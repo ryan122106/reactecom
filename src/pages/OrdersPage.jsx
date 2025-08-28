@@ -11,6 +11,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Swal from "sweetalert2";
 import { getOrders, updateOrder, deleteOrder } from "../utils/api_orders";
 
 const OrdersPage = () => {
@@ -36,12 +37,22 @@ const OrdersPage = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await deleteOrder(id);
-      setOrders((e) => e.filter((order) => order._id !== id));
-    } catch (error) {
-      console.log(error);
-    }
+    Swal.fire({
+      title: "Are you sure you want to delete this product?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      try {
+        await deleteOrder(id);
+        setOrders((e) => e.filter((order) => order._id !== id));
+      } catch (error) {
+        console.log(error);
+      }
+    });
   };
 
   return (
@@ -70,9 +81,7 @@ const OrdersPage = () => {
                   </TableCell>
                   <TableCell>
                     {order.products.map((p) => (
-                      <div>
-                        {p.name}
-                      </div>
+                      <div>{p.name}</div>
                     ))}
                   </TableCell>
 
@@ -86,7 +95,7 @@ const OrdersPage = () => {
                       size="small"
                       disabled={order.status === "pending"}
                     >
-                       {order.status === "pending" && (
+                      {order.status === "pending" && (
                         <MenuItem value="pending">Pending</MenuItem>
                       )}
 
@@ -97,8 +106,8 @@ const OrdersPage = () => {
                   </TableCell>
 
                   <TableCell>
-                    {order.status !== "pending" && order.paid_at ?
-                      new Date(order.paid_at).toLocaleString()
+                    {order.status !== "pending" && order.paid_at
+                      ? new Date(order.paid_at).toLocaleString()
                       : "-"}
                   </TableCell>
                   <TableCell>

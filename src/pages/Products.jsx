@@ -10,20 +10,24 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import CardMedia from "@mui/material/CardMedia";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import { useState, useEffect } from "react";
 import { getProducts, deleteProduct } from "../utils/api_products";
 import Swal from "sweetalert2";
-import { toast } from "sonner";6
+import { toast } from "sonner";
 import { addToCart } from "../utils/cart";
+import { API_URL } from "../utils/constants";
+import { getCategories } from "../utils/api_categories";
 
 const Products = () => {
   // to store the data from /products
   const [products, setProducts] = useState([]);
   // to track which page the user is in
   const [page, setPage] = useState(1);
+  const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("all");
 
   useEffect(() => {
@@ -31,6 +35,12 @@ const Products = () => {
       setProducts(data);
     });
   }, [category, page]);
+
+  useEffect(() => {
+    getCategories().then((data) => {
+      setCategories(data); // load categories from MongoDB
+    });
+  }, []);
 
   const handleProductDelete = async (id) => {
     Swal.fire({
@@ -98,18 +108,17 @@ const Products = () => {
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={category}
-              label="Genre"
               onChange={(event) => {
                 setCategory(event.target.value);
-                // reset the page back to 1
                 setPage(1);
               }}
             >
               <MenuItem value="all">All</MenuItem>
-              <MenuItem value={"Consoles"}>Consoles</MenuItem>
-              <MenuItem value={"Games"}>Games</MenuItem>
-              <MenuItem value={"Accessories"}>Accessories</MenuItem>
-              <MenuItem value={"Subscriptions"}>Subscriptions</MenuItem>
+              {categories.map((c) => (
+                <MenuItem key={c._id} value={c.label}>
+                  {c.label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
@@ -117,6 +126,16 @@ const Products = () => {
           {products.map((product) => (
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} key={product._id}>
               <Card>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={
+                    API_URL +
+                    (product.image
+                      ? product.image
+                      : "uploads/default_image.png")
+                  }
+                />
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h5" sx={{ minHeight: "64px" }}>
                     {product.name}
@@ -137,13 +156,10 @@ const Products = () => {
                     variant="contained"
                     color="primary"
                     fullWidth
-                    onClick={() => {
-                      addToCart(product);
-                      toast.success(`${product.name} added to cart`);
-                    }}
+                    onClick={() => addToCart(product)}
                   >
                     Add To Cart
-                  </Button>               
+                  </Button>
                   <Box
                     sx={{
                       display: "flex",
