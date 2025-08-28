@@ -108,7 +108,7 @@ function CategoriesPage() {
 
       {/* Existing categories */}
       <Paper style={{ padding: 15, marginTop: 20 }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5">
           Existing Categories
         </Typography>
 
