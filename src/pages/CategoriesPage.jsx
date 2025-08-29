@@ -64,7 +64,7 @@ function CategoriesPage() {
   };
 
   const handleUpdateCategory = async () => {
-    if (!editingLabel.trim()) {
+    if (!editingLabel) {
       return toast.error("Label cannot be empty");
     }
     try {
