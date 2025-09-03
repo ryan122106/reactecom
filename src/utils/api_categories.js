@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { API_URL } from "./constants";
 
 export const getCategories = async () => {
@@ -6,18 +7,18 @@ export const getCategories = async () => {
   return response.data;
 };
 
-export const getCategory = async (id) => {
-  const response = await axios.get(API_URL + "categories/" + id);
+export const addNewCategory = async (label) => {
+  const response = await axios.post(API_URL + "categories", {
+    label,
+  });
+
   return response.data;
 };
 
-export async function addCategory(label) {
-  const response = await axios.post(API_URL + "categories", { label });
-  return response.data;
-}
-
 export const updateCategory = async (id, label) => {
-  const response = await axios.put(API_URL + "categories/" + id, { label });
+  const response = await axios.put(API_URL + "categories/" + id, {
+    label,
+  });
   return response.data;
 };
 

@@ -111,8 +111,6 @@ const ProductAdd = () => {
               label="Genre"
               onChange={(event) => {
                 setCategory(event.target.value);
-                // reset the page back to 1
-                setPage(1);
               }}
             >
               {categories.map((cat) => (

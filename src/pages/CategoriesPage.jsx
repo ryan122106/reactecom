@@ -1,187 +1,218 @@
-import { useEffect, useState } from "react";
-import { Box, Paper, Typography, Container, Button, TextField } from "@mui/material";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import { addCategory, deleteCategory, getCategories, updateCategory } from "../utils/api_categories";
-import Swal from "sweetalert2";
+import Container from "@mui/material/Container";
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  InputLabel,
+} from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import { Edit, Delete } from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
+import {
+  getCategories,
+  addNewCategory,
+  updateCategory,
+  deleteCategory,
+} from "../utils/api_categories";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
+import Modal from "@mui/material/Modal";
 
-function CategoriesPage() {
+const CategoriesPage = () => {
   const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [editingLabel, setEditingLabel] = useState("");
+  const [label, setLabel] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selectedCatID, setSelectedCatID] = useState("");
+  const [selectedCatLabel, setSelectedCatLabel] = useState("");
 
-  // Load categories
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await getCategories();
-        setCategories(data);
-      } catch (error) {
-        toast.error("Failed to load categories");
-      }
-    };
-    fetchCategories();
+    getCategories().then((data) => setCategories(data));
   }, []);
 
-  const handleAddCategory = async () => {
-    if (!newCategory) {
-      return toast.error("Category label cannot be empty");
-    }
-    try {
-      const created = await addCategory(newCategory);
-      toast.success("Category added!");
-      setCategories([...categories, created]);
-      setNewCategory("");
-    } catch (error) {
-      toast.error("Error adding category");
+  const handleAddNew = async () => {
+    if (label === "") {
+      toast.error("Please fill up the label");
+    } else {
+      // add new category
+      await addNewCategory(label);
+      // get the latest categories again
+      const newCategories = await getCategories();
+      // update the categories state
+      setCategories(newCategories);
+      // clear the label
+      setLabel("");
+      toast.info("New category has been added");
     }
   };
 
-  const handleDeleteCategory = async (id) => {
+  const handleUpdate = async () => {
+    // prompt the user to update the new label for the selected category (pass in the current value)
+    // const newCategoryLabel = prompt(
+    //   "Please enter the new label for the selected category.",
+    //   category.label
+    // );
+    // update category
+    await updateCategory(selectedCatID, selectedCatLabel);
+    // get the latest categories again
+    const newCategories = await getCategories();
+    // update the categories state
+    setCategories(newCategories);
+    // close the model
+    setOpen(false);
+    toast.info("Category has been updated");
+  };
+
+  const handleDelete = async (category) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "This category will be deleted!",
+      title: "Are you sure you want to delete this category?",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
+      // once user confirm, then we delete the product
       if (result.isConfirmed) {
-        try {
-          await deleteCategory(id);
-          toast.success("Category deleted!");
-          setCategories(categories.filter((c) => c._id !== id));
-        } catch (error) {
-          toast.error("Error deleting category");
-        }
+        await deleteCategory(category._id);
+        // get the latest categories again
+        const newCategories = await getCategories();
+        // update the categories state
+        setCategories(newCategories);
+        toast.info("Category has been deleted");
       }
     });
   };
 
-  const handleEditCategory = (cat) => {
-    setEditingId(cat._id);
-    setEditingLabel(cat.label);
-  };
-
-  const handleUpdateCategory = async () => {
-    if (!editingLabel) {
-      return toast.error("Label cannot be empty");
-    }
-    try {
-      const updated = await updateCategory(editingId, editingLabel);
-      setCategories(
-        categories.map((c) => (c._id === editingId ? updated : c))
-      );
-      toast.success("Category updated!");
-      setEditingId(null);
-      setEditingLabel("");
-    } catch (error) {
-      toast.error("Error updating category");
-    }
-  };
-
   return (
-    <Container>
-      <Header title={"Categories"} />
-
-      {/* Add new category */}
-      <Paper
-        style={{
-          margin: 10,
-          padding: 15,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <TextField
-          fullWidth
-          label="Category Label"
-          variant="outlined"
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-        />
-        <Button variant="contained" onClick={handleAddCategory}>
-          Add
-        </Button>
-      </Paper>
-      
-      <Paper style={{ padding: 15, marginTop: 20 }}>
-        <Typography variant="h5">
-          Existing Categories
-        </Typography>
-
-        {categories.length === 0 && (
-          <Typography variant="body1" align="center">
-            No categories yet.
-          </Typography>
-        )}
-
-        {categories.map((cat) => (
-          <Paper
-            key={cat._id}
-            style={{
+    <>
+      <Header current="categories" title="Manage Categories" />
+      <Container maxWidth="lg">
+        <Typography variant="h4">Manage Categories</Typography>
+        <Paper
+          elevation={3}
+          sx={{
+            p: "20px",
+            mt: "20px",
+          }}
+        >
+          <InputLabel>Add New Category</InputLabel>
+          <Box
+            sx={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
-              padding: 10,
-              marginTop: 10,
+              gap: "10px",
+              mt: "5px",
             }}
           >
-            {editingId === cat._id ? (
-              <>
-                <TextField
-                  value={editingLabel}
-                  onChange={(e) => setEditingLabel(e.target.value)}
-                  size="small"
-                />
-                <Box>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    onClick={handleUpdateCategory}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => setEditingId(null)}
-                    style={{ marginLeft: 8 }}
-                  >
-                    Cancel
-                  </Button>
-                </Box>
-              </>
-            ) : (
-              <>
-                <Typography variant="h6">{cat.label}</Typography>
-                <Box>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => handleEditCategory(cat)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    onClick={() => handleDeleteCategory(cat._id)}
-                    style={{ marginLeft: 8 }}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              </>
-            )}
-          </Paper>
-        ))}
-      </Paper>
-    </Container>
+            <TextField
+              fullWidth
+              label="Category"
+              variant="outlined"
+              value={label}
+              onChange={(event) => setLabel(event.target.value)}
+            />
+            <Button color="primary" variant="contained" onClick={handleAddNew}>
+              Add
+            </Button>
+          </Box>
+        </Paper>
+        <Paper
+          elevation={3}
+          sx={{
+            p: "20px",
+            mt: "20px",
+          }}
+        >
+          <InputLabel>Existing Categories ({categories.length})</InputLabel>
+          <List sx={{ width: "100%" }}>
+            {categories.map((category) => (
+              <ListItem
+                key={category._id}
+                disableGutters
+                divider
+                secondaryAction={
+                  <Box sx={{ display: "flex", gap: "10px" }}>
+                    <IconButton
+                      onClick={() => {
+                        setOpen(true);
+                        // pass in the id and label
+                        setSelectedCatID(category._id);
+                        setSelectedCatLabel(category.label);
+                      }}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(category)}>
+                      <Delete />
+                    </IconButton>
+                  </Box>
+                }
+              >
+                <ListItemText primary={`${category.label}`} />
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+
+        <Modal open={open} onClose={() => setOpen(false)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "background.paper",
+              border: "2px solid #000",
+              boxShadow: 24,
+              p: 4,
+            }}
+          >
+            <TextField
+              fullWidth
+              label="Category"
+              variant="outlined"
+              value={selectedCatLabel}
+              onChange={(event) => setSelectedCatLabel(event.target.value)}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "10px",
+                pt: 2,
+              }}
+            >
+              {" "}
+              <Button
+                color="primary"
+                variant="outlined"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={handleUpdate}
+              >
+                Update
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
+      </Container>
+    </>
   );
-}
+};
 
 export default CategoriesPage;

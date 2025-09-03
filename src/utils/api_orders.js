@@ -23,8 +23,10 @@ export const createOrder = async (
   return response.data;
 };
 
-export const updateOrder = async (id, body) => {
-  const response = await axios.put(API_URL + "orders/" + id, body);
+export const updateOrder = async (id, status) => {
+  const response = await axios.put(API_URL + "orders/" + id, {
+    status,
+  });
   return response.data;
 };
 

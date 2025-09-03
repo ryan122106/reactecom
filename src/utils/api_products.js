@@ -30,7 +30,14 @@ export async function addProduct(name, description, price, category, image) {
   return response.data;
 }
 
-export async function updateProduct(id, name, description, price, category, image) {
+export async function updateProduct(
+  id,
+  name,
+  description,
+  price,
+  category,
+  image
+) {
   // PUT http://localhost:5123/products/68a56c5c2a01f899adb75255
   const response = await axios.put(API_URL + "products/" + id, {
     name: name,
@@ -43,6 +50,7 @@ export async function updateProduct(id, name, description, price, category, imag
 }
 
 export async function deleteProduct(id) {
-  const response = await axios.delete(API_URL + "products/" + id)
+  // DELETE http://localhost:5123/products/68a56c5c2a01f899adb75255
+  const response = await axios.delete(API_URL + "products/" + id);
   return response.data;
 }

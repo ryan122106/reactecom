@@ -93,46 +93,47 @@ const CheckoutPage = () => {
             </Box>
             <Box mb={2}>
               <Button fullWidth variant="contained" onClick={handleCheckout}>
-                Pay ${getCartTotal().toFixed(2)}
+                Pay ${getCartTotal()}
               </Button>
             </Box>
           </Grid>
           <Grid item size={{ xs: 12, md: 6, lg: 6 }}>
-            <Typography variant="h5" sx={{ mb: 3 }}>
-              Your Order Summary
-            </Typography>
+            <Typography variant="h5">Your Order Summary</Typography>
             <TableContainer component={Paper}>
-              <Table>
+              <Table aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Product</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Qty</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Price</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Total</TableCell>
+                    <TableCell>Product</TableCell>
+                    <TableCell align="right">Total</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {cart.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>${item.price.toFixed(2)}</TableCell>
-                      <TableCell>
-                        ${(item.price * item.quantity).toFixed(2)}
+                  {cart.length > 0 ? (
+                    cart.map((product) => (
+                      <TableRow
+                        key={product._id}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {product.name}
+                        </TableCell>
+                        <TableCell align="right">
+                          ${(product.price * product.quantity).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5}>
+                        No product has been added to cart yet
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                   <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      align="right"
-                      sx={{ fontWeight: "bold" }}
-                    >
-                      Total:
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      ${getCartTotal().toFixed(2)}
-                    </TableCell>
+                    <TableCell colSpan={1}></TableCell>
+                    <TableCell align="right">${getCartTotal()}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

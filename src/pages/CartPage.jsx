@@ -1,122 +1,109 @@
-import React, { useEffect, useState } from "react";
-import { getCart, deleteItemFromCart, updateCart } from "../utils/cart";
-import {
-  Box,
-  Button,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
 import Header from "../components/Header";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
 import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { getCart, updateCart } from "../utils/cart";
 
 const CartPage = () => {
-  const [cart, setCart] = useState([]);
+  // load the cart items from the local storage
+  const [cart, setCart] = useState(getCart());
 
-  useEffect(() => {
-    setCart(getCart());
-  }, []);
-
-  const handleDelete = (id) => {
-    const updated = deleteItemFromCart(id);
-    setCart(updated);
-  };
-
-  const handleQuantity = (id, change) => {
-    const item = cart.find((p) => p._id === id);
-    if (!item) return;
-
-    const newQty = item.quantity ? item.quantity + change : 1 + change;
-
-    if (newQty <= 0) {
-      handleDelete(id);
-    } else {
-      const updated = updateCart(id, { quantity: newQty });
-      setCart(updated);
-    }
-  };
-
-  const getTotal = () => {
+  const getCartTotal = () => {
     let total = 0;
-    for (const item of cart) {
-      total += item.price * (item.quantity || 1);
-    }
+    cart.forEach((product) => {
+      total += product.quantity * product.price;
+    });
     return total;
+  };
+
+  const removeItemFromCart = (product) => {
+    // 1. remove product from cart
+    const updatedCart = cart.filter((item) => item._id !== product._id);
+    // 2. update the cart data in local storage and the state
+    updateCart(updatedCart);
+    // 3. update the state
+    setCart(updatedCart);
   };
 
   return (
     <>
-      <Header title="Cart" />
-      <div style={{ padding: "20px" }}>
-        {cart.length === 0 ? (
-          <Typography>No products Add Yet!</Typography>
-        ) : (
-          <>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Product</TableCell>
-                  <TableCell>Price</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Total</TableCell>
-                  <TableCell>Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cart.map((item) => (
-                  <TableRow key={item._id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>${item.price}</TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleQuantity(item._id, -1)}
-                      ></Button>
-                      {item.quantity || 1}
-                      <Button
-                        onClick={() => handleQuantity(item._id, 1)}
-                      ></Button>
+      <Header current="cart" title="Cart" />
+      <Container maxWidth="lg" sx={{ textAlign: "center" }}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Product</TableCell>
+                <TableCell align="right">Price</TableCell>
+                <TableCell align="right">Quantity</TableCell>
+                <TableCell align="right">Total</TableCell>
+                <TableCell align="right">Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {cart.length > 0 ? (
+                cart.map((product) => (
+                  <TableRow
+                    key={product._id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {product.name}
                     </TableCell>
-                    <TableCell>
-                      ${(item.price * item.quantity).toFixed(2)}
+                    <TableCell align="right">{product.price}</TableCell>
+                    <TableCell align="right">{product.quantity}</TableCell>
+                    <TableCell align="right">
+                      ${(product.price * product.quantity).toFixed(2)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell align="right">
                       <Button
-                        color="error"
                         variant="contained"
-                        onClick={() => handleDelete(item._id)}
+                        color="error"
+                        onClick={() => {
+                          removeItemFromCart(product);
+                        }}
                       >
-                        Remove{" "}
+                        Remove
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            <Typography
-              sx={{ ml: 130 }}
-              variant="h6"
-              style={{ marginTop: "20px" }}
-            >
-              ${getTotal().toFixed(2)}
-            </Typography>
-          </>
-        )}
-        <Box sx={{ pt: 3, display: "flex", justifyContent: "flex-end"}}>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5}>
+                    No product has been added to cart yet
+                  </TableCell>
+                </TableRow>
+              )}
+              <TableRow>
+                <TableCell colSpan={3}></TableCell>
+                <TableCell align="right">${getCartTotal()}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box sx={{ pt: 3, display: "flex", justifyContent: "flex-end" }}>
           <Button
             variant="contained"
-            color="info"
+            color="primary"
             component={Link}
             to="/checkout"
+            // disable the checkout page if no item found in cart
             disabled={cart.length === 0 ? true : false}
           >
             Checkout
           </Button>
         </Box>
-      </div>
+      </Container>
     </>
   );
 };

@@ -1,9 +1,15 @@
+import { Link, Navigate } from "react-router";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { Button } from "@mui/material";
-import { Link } from "react-router";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router";
 
-const Header = ({ title }) => {
+const Header = (props) => {
+  const { current, title = "Welcome To My Store" } = props;
+  const [cookies, setCookie, removeCookie] = useCookies(["currentuser"]);
+  const navigate = useNavigate();
+  const { currentuser } = cookies;
   return (
     <Box
       sx={{
@@ -21,22 +27,74 @@ const Header = ({ title }) => {
       >
         {title}
       </Typography>
-      <Box sx={{ mt: 3 }}>
-        <Button component={Link} to={"/"} variant={title === "Welcome to My Store" ? "contained" : "outlined"} sx={{ mr: 4 }}>
+      {currentuser && (
+        <Typography variant="body1" align="center">
+          Current Logged In User:
+          <br />
+          {currentuser.name} ({currentuser.email})
+        </Typography>
+      )}
+      <Box
+        sx={{ display: "flex", gap: "10px", justifyContent: "center", mt: 2 }}
+      >
+        <Button
+          component={Link}
+          to="/"
+          variant={current === "home" ? "contained" : "outlined"}
+        >
           Home
         </Button>
-        <Button component={Link} to={"/products/cart"} variant={title === "Cart" ? "contained" : "outlined"} sx={{ mr: 4 }}>
+        <Button
+          component={Link}
+          to="/cart"
+          variant={current === "cart" ? "contained" : "outlined"}
+        >
           Cart
         </Button>
-        <Button component={Link} to={"/orders"} variant={title === "My Orders" ? "contained" : "outlined"} sx={{ mr: 4}}>
+        <Button
+          component={Link}
+          to="/orders"
+          variant={current === "orders" ? "contained" : "outlined"}
+        >
           My Orders
         </Button>
-        <Button component={Link} to={"/login"} variant={title === "Login to your account" ? "contained" : "outlined"} sx={{ mr: 4}}>
-          Login
+        <Button
+          component={Link}
+          to="/categories"
+          variant={current === "categories" ? "contained" : "outlined"}
+        >
+          Manage Categories
         </Button>
-        <Button component={Link} to={"/signup"} variant={title === "Create a New Account" ? "contained" : "outlined"}>
-          SignUp
-        </Button>
+        {currentuser ? (
+          <Button
+            variant="outlined"
+            onClick={() => {
+              // remove cookie
+              removeCookie("currentuser");
+              // redirect back to home page
+              navigate("/");
+            }}
+          >
+            Logout
+          </Button>
+        ) : (
+          <>
+            <Button
+              component={Link}
+              to="/login"
+              variant={current === "login" ? "contained" : "outlined"}
+            >
+              Login
+            </Button>
+            <Button
+              component={Link}
+              to="/signup"
+              variant={current === "signup" ? "contained" : "outlined"}
+            >
+              Sign Up
+            </Button>
+          </>
+        )}
       </Box>
     </Box>
   );
