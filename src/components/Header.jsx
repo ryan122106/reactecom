@@ -31,8 +31,11 @@ const Header = ({ title }) => {
         <Button component={Link} to={"/orders"} variant={title === "My Orders" ? "contained" : "outlined"} sx={{ mr: 4}}>
           My Orders
         </Button>
-        <Button component={Link} to={"/categories"} variant={title === "Categories" ? "contained" : "outlined"}>
-          Categories
+        <Button component={Link} to={"/login"} variant={title === "Login to your account" ? "contained" : "outlined"} sx={{ mr: 4}}>
+          Login
+        </Button>
+        <Button component={Link} to={"/signup"} variant={title === "Create a New Account" ? "contained" : "outlined"}>
+          SignUp
         </Button>
       </Box>
     </Box>
