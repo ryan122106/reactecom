@@ -19,12 +19,16 @@ import validator from "email-validator";
 import { createOrder } from "../utils/api_orders";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useCookies } from "react-cookie";
 
 const CheckoutPage = () => {
+  const [cookies] = useCookies(["currentuser"]);
+  const { currentuser = {} } = cookies; // assign empty object to avoid error if user not logged in
+  const { token = "", email = "", name = "" } = currentuser;
   // load the cart items from the local storage
   const [cart, setCart] = useState(getCart());
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [name, setName] = useState("");
+  // const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const getCartTotal = () => {
